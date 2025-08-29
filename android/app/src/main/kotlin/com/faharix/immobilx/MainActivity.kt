@@ -1,4 +1,4 @@
-package com.odc.mobile.odc_mobile_template
+package com.faharix.immobilx
 
 import io.flutter.embedding.android.FlutterActivity
 

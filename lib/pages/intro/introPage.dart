@@ -45,11 +45,11 @@ class _IntroPageState extends ConsumerState<IntroPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset('assets/orange_logo.png', width: 100, height: 100, fit: BoxFit.contain,),
+            Image.asset('assets/logo_linkdin.jpg', width: 100, height: 100, fit: BoxFit.contain,),
             SizedBox(height: 20),
-            Text('Bienvenue sur l\'application ODC'),
+            Text('Bienvenue sur l\'application ImmobilX'),
             SizedBox(height: 80),
-            CircularProgressIndicator(color: Colors.orange,)
+            CircularProgressIndicator(color: Colors.blueAccent,)
 
           ],
         ),

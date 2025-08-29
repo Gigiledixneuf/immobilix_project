@@ -1,10 +1,9 @@
 import 'dart:convert';
 
-import 'package:odc_mobile_template/utils/localManager.dart';
-
 import '../../business/models/user/user.dart';
 
 import '../../business/services/user/userLocalService.dart';
+import '../../utils/localManager.dart';
 
 class UserLocalServiceImpl implements UserLocalService {
   LocalManager? box;

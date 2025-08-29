@@ -3,18 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:odc_mobile_template/business/services/user/userNetworkService.dart';
-import 'package:odc_mobile_template/framework/utils/localStorage/getStorageImpl.dart';
-import 'package:odc_mobile_template/utils/navigationUtils.dart';
+import 'package:immobilx/utils/navigationUtils.dart';
 import 'business/services/gestion/gestionLocalService.dart';
 import 'business/services/gestion/gestionNetworkService.dart';
 import 'MonApplication.dart';
 import 'business/services/user/userLocalService.dart';
+import 'business/services/user/userNetworkService.dart';
 import 'framework/gestion/gestionNetworkServiceImpl.dart';
 import 'framework/gestion/gestionLocalServiceImpl.dart';
 import 'framework/user/userLocalServiceImpl.dart';
 import 'framework/user/userNetworkServiceImpl.dart';
 import 'framework/utils/http/remoteHttpUtils.dart';
+import 'framework/utils/localStorage/getStorageImpl.dart';
 
 GetIt getIt = GetIt.instance;
 

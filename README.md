@@ -1,4 +1,4 @@
-# ODC Mobile Template - Guide d'utilisation
+# ImmobiliX - Guide d'utilisation
 
 
 ## Comment cloner le projet
