@@ -1,4 +1,4 @@
-# ImmobiliX - Guide d'utilisation
+# ImmobilX - Guide d'utilisation
 
 
 ## Comment cloner le projet
