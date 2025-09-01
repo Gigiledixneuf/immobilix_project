@@ -28,6 +28,8 @@ dependencies:
   uuid: ^4.4.0
   get_storage: ^2.1.1
   path: ^1.9.1
+  flutter_onboarding_slider: ^1.0.11
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
