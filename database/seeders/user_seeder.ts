@@ -39,28 +39,47 @@ export default class extends BaseSeeder {
     // @ts-ignore
     await admin.related('roles').attach([roleMap.admin])
 
-    // 🧑‍💼 Bailleur
-    const bailleur = await createUser(
-      'Jean Dupont',
-      'bailleur@example.com',
+    // 🧑‍💼 Bailleur1
+    const bailleur1 = await createUser(
+      'Well Monga',
+      'bailleur1@example.com',
       '0611111111',
-      'password123'
+      'password'
     )
     // @ts-ignore
-    await bailleur.related('roles').attach([roleMap.bailleur])
+    await bailleur1.related('roles').attach([roleMap.bailleur])
+
+    // 🧑‍💼 Bailleur2
+    const bailleur2 = await createUser(
+      'Adeline Kayeya',
+      'bailleur2@example.com',
+      '0611111111',
+      'password'
+    )
+    // @ts-ignore
+    await bailleur2.related('roles').attach([roleMap.bailleur])
 
     // 👩‍💻 Locataire
     const locataire = await createUser(
-      'Marie Diallo',
-      'locataire@example.com',
+      'Zoukoumayzeee',
+      'locataire1@example.com',
       '0622222222',
-      'password123'
+      'password'
     )
     // @ts-ignore
     await locataire.related('roles').attach([roleMap.locataire])
 
+    const locataire2 = await createUser(
+      'Kaki Santana',
+      'locataire2@example.com',
+      '0622222222',
+      'password'
+    )
+    // @ts-ignore
+    await locataire2.related('roles').attach([roleMap.locataire])
+
     // 👥 User mixte (bailleur + locataire)
-    const multi = await createUser('Thomas Koffi', 'multi@example.com', '0633333333', 'password123')
+    const multi = await createUser('Thomas Koffi', 'multi@example.com', '0633333333', 'password')
     // @ts-ignore
     await multi.related('roles').attach([roleMap.bailleur, roleMap.locataire])
 
