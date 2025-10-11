@@ -3,7 +3,7 @@ import Role from '#models/role'
 import User from '#models/user'
 import hash from '@adonisjs/core/services/hash'
 
-export default class extends BaseSeeder {
+export default class UserSeeder extends BaseSeeder {
   async run() {
     // Write your database queries inside the run method
     console.log('🌱 Seeding test users...')
