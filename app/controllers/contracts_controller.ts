@@ -1,11 +1,17 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import Contract from '#models/contract'
 import Property from '#models/property'
 import User from '#models/user'
 import { StoreContractValidator, UpdateContractValidator } from '#validators/contract'
 import { DateTime } from 'luxon'
+import HederaService, { HederaContractData } from '#services/hedera_service'
 
+@inject()
 export default class ContractsController {
+  // 🎯 INJECTION DE DÉPENDANCE : Le service Hedera est injecté
+  constructor(protected hederaService: HederaService) {}
+
   /**
    * 📜 Liste des contrats de l'utilisateur connecté
    */
@@ -150,7 +156,7 @@ export default class ContractsController {
       })
     }
 
-    // Création du contrat
+    // Création du contrat dans la base de données
     const contract = await Contract.create({
       propertyId: payload.propertyId,
       tenantId: payload.tenantId,
@@ -164,6 +170,32 @@ export default class ContractsController {
       depositAmount: payload.depositAmount || null,
       depositStatus: payload.depositStatus || 'unpaid',
     })
+
+    // ➡️ Appel du service Hedera (Master Contract Pattern)
+    try {
+      // 💡 Conversion en HederaContractData typée
+      const hederaData: HederaContractData = {
+        contractId: contract.id, // 💡 ID de la DB utilisé comme clé on-chain
+        landlordId: user.id,
+        tenantId: tenant.id,
+        endDate: endDate || null,
+        rentAmount: payload.rentAmount,
+        currency: payload.currency,
+        status: payload.status || 'pending',
+        depositMonths: payload.depositMonths || 0,
+        depositAmount: payload.depositAmount || null,
+        depositStatus: payload.depositStatus || 'unpaid',
+      }
+
+      const hederaContratId = await this.hederaService.createContratOnChain(hederaData)
+
+      // Sauvegarde l'ID du Smart Contract Master (Master Contract ID)
+      contract.hederaContractId = hederaContratId
+      await contract.save()
+    } catch (error) {
+      console.log('Erreur lors de la création du contrat Hedera: ', error)
+      // NOTE: En production, vous pourriez vouloir annuler la transaction DB ou marquer le contrat comme 'Hedera_failed'
+    }
 
     // Charger les relations pour la réponse
     await contract.load('property')
@@ -307,7 +339,7 @@ export default class ContractsController {
       })
     }
 
-    // Mise à jour du contrat
+    // Mise à jour du contrat dans la base de données
     contract.merge({
       ...payload,
       startDate: payload.startDate || contract.startDate,
@@ -315,6 +347,21 @@ export default class ContractsController {
     })
 
     await contract.save()
+
+    // ➡️ Mise à jour du Smart Contract Hedera
+    if (contract.hederaContractId) {
+      try {
+        const updatesForHedera = {
+          dbContractId: contract.id, // 💡 ID de la DB pour cibler le bail dans le Master Contract
+          newEndDate: payload.endDate || contract.endDate,
+          newStatus: payload.status || contract.status,
+        }
+
+        await this.hederaService.updateContractOnChain(contract.hederaContractId, updatesForHedera)
+      } catch (error) {
+        console.log('Erreur lors de la mise à jour du contrat Hedera', error)
+      }
+    }
 
     // Recharger les relations
     await contract.load('property')
@@ -356,6 +403,9 @@ export default class ContractsController {
         message: "Vous n'avez pas la permission de supprimer ce contrat",
       })
     }
+
+    // NOTE: Idéalement, si le contrat a un ID Hedera, il faudrait appeler une fonction
+    // 'terminateLease' sur le Master Contract ici.
 
     await contract.delete()
 
