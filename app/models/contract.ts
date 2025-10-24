@@ -42,6 +42,9 @@ export default class Contract extends BaseModel {
   @column()
   declare depositStatus: string
 
+  @column()
+  declare hederaContractId: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
