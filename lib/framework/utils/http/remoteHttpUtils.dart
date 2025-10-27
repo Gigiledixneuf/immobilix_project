@@ -3,25 +3,35 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:immobilx/business/services/user/userLocalService.dart';
 
 import '../../../utils/http/HttpRequestException.dart';
 import '../../../utils/http/HttpUtils.dart';
 
 
 class RemoteHttpUtils implements HttpUtils {
+  // Ajout du service local pour accéder au token
+  final UserLocalService userLocalService;
+
+  RemoteHttpUtils({required this.userLocalService});
+
   static bool isLocalUrl(String url) {
     return url.startsWith('local://');
   }
 
-   Future<String> getData(
-    String url, {
-    Map<String, String>? headers,
-    Map<String, dynamic>? queryParams,
-    String? token,
-  }) async {
+  Future<String> getData(
+      String url, {
+        Map<String, String>? headers,
+        Map<String, dynamic>? queryParams,
+      }) async {
     if (isLocalUrl(url)) {
       return getlocalGetData(url);
     }
+
+    // Récupération automatique du token
+    final user = await userLocalService.recupererUser();
+    final token = user?.token;
+
     final Map<String, String> defaultHeaders = {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -30,9 +40,9 @@ class RemoteHttpUtils implements HttpUtils {
     final Map<String, String> finalHeaders = {...defaultHeaders, ...?headers};
 
     final Uri uri =
-        queryParams != null
-            ? Uri.parse(url).replace(queryParameters: queryParams)
-            : Uri.parse(url);
+    queryParams != null
+        ? Uri.parse(url).replace(queryParameters: queryParams)
+        : Uri.parse(url);
 
     final response = await http.get(uri, headers: finalHeaders);
 
@@ -53,14 +63,18 @@ class RemoteHttpUtils implements HttpUtils {
     try {
       final filePath = 'assets/fake/$path2.json';
       await Future.delayed(Duration(milliseconds: 1800));
-     return await rootBundle.loadString(filePath);
+      return await rootBundle.loadString(filePath);
     } catch (e) {
       throw HttpRequestException(404, 'Error loading local data: $e', null);
     }
   }
 
   @override
-  Future postData(String url, {Map<String, String>? headers, String? token, Map<String, dynamic>? body}) async {
+  Future postData(String url, {Map<String, String>? headers, Map<String, dynamic>? body}) async {
+    // Récupération automatique du token
+    final user = await userLocalService.recupererUser();
+    final token = user?.token;
+
     final Map<String, String> defaultHeaders = {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -84,14 +98,18 @@ class RemoteHttpUtils implements HttpUtils {
   }
 
   @override
-  Future putData(String url, {Map<String, String>? headers, String? token, Map<String, dynamic>? body}) async {
+  Future putData(String url, {Map<String, String>? headers, Map<String, dynamic>? body}) async {
+    // Récupération automatique du token
+    final user = await userLocalService.recupererUser();
+    final token = user?.token;
+
     final Map<String, String> defaultHeaders = {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
     };
 
     final Map<String, String> finalHeaders = {...defaultHeaders, ...?headers};
-    
+
     final Uri uri = Uri.parse(url);
 
     final response = await http.put(uri, headers: finalHeaders, body: jsonEncode(body));
