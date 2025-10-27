@@ -21,7 +21,10 @@ class AppCtrl  extends StateNotifier<AppState>{
     }
   }
 
-  
+  Future<void> logout() async {
+    await userLocalService.supprimerUser();
+    state = state.copyWith(user: null);
+  }
 }
 
 

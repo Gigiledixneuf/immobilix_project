@@ -17,7 +17,7 @@ class UserLocalServiceImpl implements UserLocalService {
   }
 
   @override
-  Future<bool> sauvegarderUser(User user) async {
+  Future<bool> enregistrerUser(User user) async {
     await box?.writeData("USER_KEY", jsonEncode(user.toJson()));
     return true;
   }

@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:immobilx/pages/auth/login/login_screen.dart';
+import 'package:immobilx/pages/auth/register/register_screen.dart';
+import 'package:immobilx/pages/auth/welcom/welcom_screen.dart';
 import 'package:immobilx/pages/widget/onboarding_page.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
-import 'pages/intro/introPage.dart';
 import 'utils/navigationUtils.dart';
 import './main.dart';
 import 'pages/home/homePage.dart';
@@ -37,10 +39,24 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       },
     ),
     GoRoute(
-      path: "/public/intro",
-      name: 'intro_page',
+      path: "/public/welcome",
+      name: 'welcome_page',
       builder: (ctx, state) {
-        return IntroPage();
+        return WelcomePage();
+      },
+    ),
+    GoRoute(
+      path: "/public/login",
+      name: 'login_page',
+      builder: (ctx, state) {
+        return LoginPage();
+      },
+    ),
+    GoRoute(
+      path: "/public/register",
+      name: 'register_page',
+      builder: (ctx, state) {
+        return RegisterPage();
       },
     ),
   ];
@@ -51,7 +67,7 @@ CONFIGURATION  DES ROUTES
   return GoRouter(
     navigatorKey: navigatorKey,
     debugLogDiagnostics: true,
-    initialLocation: "/public/intro",
+    initialLocation: "/public/welcome",
     redirect: (context, state) {
       // Étape 1 : Vérification de l'onboarding
       final onboardingCompleted = ref.watch(onboardingProvider);
@@ -74,10 +90,10 @@ CONFIGURATION  DES ROUTES
         return "/app/home";
       }
 
-      // Redirection vers la page d'intro si l'utilisateur n'est pas connecté
+      // Redirection vers la page d'accueil si l'utilisateur n'est pas connecté
       // et essaie d'accéder à une page restreinte
       if (user == null && state.matchedLocation.startsWith("/app")) {
-        return "/public/intro";
+        return "/public/welcome";
       }
 
       return null;
