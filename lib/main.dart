@@ -20,15 +20,20 @@ GetIt getIt = GetIt.instance;
 
 // configuration instance Implementations
 void configureImplementations() {
-  var httpUtils = RemoteHttpUtils();
   var baseUrl = dotenv.env['BASE_URL'] ?? '';
-  var localManager=GetStorageImpl();
-  
+  var localManager = GetStorageImpl();
+
+  // 1. Enregistrer d'abord le service de stockage local
+  getIt.registerLazySingleton<UserLocalService>(() => UserLocalServiceImpl(box: localManager));
+
+  // 2. Créer l'utilitaire HTTP en lui injectant le service de stockage
+  var httpUtils = RemoteHttpUtils(userLocalService: getIt<UserLocalService>());
+
+  // 3. Enregistrer les autres services qui dépendent de httpUtils
   getIt.registerLazySingleton<NavigationUtils>(() => NavigationUtils());
   getIt.registerLazySingleton<GestionNetworkService>(() => GestionNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
   getIt.registerLazySingleton<GestionLocalService>(() => GestionLocalServiceImpl());
-  getIt.registerLazySingleton<UserNetworkService>(() => UserNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
-  getIt.registerLazySingleton<UserLocalService>(() => UserLocalServiceImpl(box: localManager));
+  getIt.registerLazySingleton<UserNetworkService>(() => UserNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils, token: ''));
 }
 
 void main() async {
