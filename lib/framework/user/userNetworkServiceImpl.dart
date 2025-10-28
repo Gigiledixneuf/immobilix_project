@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import '../../business/models/user/authentication.dart';
 import '../../business/models/user/user.dart';
 import '../../business/services/user/userNetworkService.dart';
 import '../../utils/http/HttpUtils.dart';
@@ -13,37 +12,23 @@ class UserNetworkServiceImpl extends UserNetworkService {
   UserNetworkServiceImpl({required this.baseUrl, required this.httpUtils, required String token});
 
   @override
-  Future<User> recupererInfoUtilisateur() {
-    // TODO: implement recupererInfoUtilisateur
-    throw UnimplementedError();
-  }
-
-  @override
   Future<User> login(String email, String password) async {
-    // 1. Utilisation de postData comme défini dans HttpUtils
     final response = await httpUtils.postData(
       '$baseUrl/api/login',
       body: {'email': email, 'password': password},
     );
 
-    // 2. Décodage de la réponse JSON (qui est une chaîne de caractères)
     final data = jsonDecode(response);
-
-    // 3. Extraction des données de l'utilisateur et du token
     final userData = data['data']['user'];
     final token = data['data']['token'];
 
-    // 4. Ajout du token aux données de l'utilisateur avant de créer l'objet User
-    //    Ceci permet de conserver le token avec l'utilisateur.
     userData['token'] = token;
 
-    // 5. Création et retour de l'objet User
     return User.fromJson(userData);
   }
 
   @override
   Future<User> register(String fullName, String email, String portable, String password, String passwordConfirmation) async {
-    // 1. Utilisation de postData
     final response = await httpUtils.postData(
       '$baseUrl/api/register',
       body: {
@@ -55,18 +40,32 @@ class UserNetworkServiceImpl extends UserNetworkService {
       },
     );
 
-    // 2. Décodage de la réponse JSON
     final data = jsonDecode(response);
-
-    // 3. Extraction des données de l'utilisateur et du token
     final userData = data['data']['user'];
     final token = data['data']['token'];
 
-    // 4. Ajout du token aux données de l'utilisateur
     userData['token'] = token;
 
-    // 5. Création et retour de l'objet User
     return User.fromJson(userData);
+  }
+
+  @override
+  Future<User> getProfile() async {
+    final response = await httpUtils.getData('$baseUrl/api/profile');
+    final data = jsonDecode(response);
+    // La réponse pour le profil ne contient pas de clé 'data', l'utilisateur est à la racine
+    return User.fromJson(data);
+  }
+
+  @override
+  Future<User> updateProfile(Map<String, dynamic> profileData) async {
+    final response = await httpUtils.putData(
+      '$baseUrl/api/profile',
+      body: profileData,
+    );
+    final data = jsonDecode(response);
+    // La réponse de mise à jour contient un message et l'utilisateur mis à jour
+    return User.fromJson(data['user']);
   }
 }
 
