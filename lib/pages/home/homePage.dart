@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../business/models/article/article.dart';
 import '../../main.dart';
 import '../../utils/navigationUtils.dart';
+import '../intro/appCtrl.dart';
 import 'homeCtrl.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -52,23 +54,30 @@ class _HomePageState extends ConsumerState<HomePage> {
         actions: [
           IconButton(
             onPressed: () {
+              // Naviguer vers la page de profil
+              context.go('/app/profile');
+            },
+            icon: const Icon(Icons.person_outline),
+          ),
+          IconButton(
+            onPressed: () {
               var ctrl = ref.read(homeCtrlProvider.notifier);
               ctrl.fetchArticles();
             },
-            icon: Icon(Icons.sync),
+            icon: const Icon(Icons.sync),
           ),
         ],
       ),
       body:
-          state.isLoading == true
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                itemCount: state.articles?.length ?? 0,
-                itemBuilder: (context, index) {
-                  var article = state.articles?[index];
-                  return _buildArticle(article);
-                },
-              ),
+      state.isLoading == true
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        itemCount: state.articles?.length ?? 0,
+        itemBuilder: (context, index) {
+          var article = state.articles?[index];
+          return _buildArticle(article);
+        },
+      ),
     );
   }
 

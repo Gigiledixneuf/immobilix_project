@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:immobilx/pages/auth/login/login_screen.dart';
 import 'package:immobilx/pages/auth/register/register_screen.dart';
 import 'package:immobilx/pages/auth/welcom/welcom_screen.dart';
+import 'package:immobilx/pages/profile/edit/edit_profile_screen.dart';
+import 'package:immobilx/pages/profile/profile_screen.dart';
 import 'package:immobilx/pages/widget/onboarding_page.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
@@ -23,6 +25,22 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       builder: (ctx, state) {
         return HomePage();
       },
+    ),
+    GoRoute(
+      path: "/app/profile",
+      name: 'profile_page',
+      builder: (ctx, state) {
+        return ProfilePage();
+      },
+      routes: [
+        GoRoute(
+          path: "edit",
+          name: 'edit_profile_page',
+          builder: (ctx, state) {
+            return EditProfilePage();
+          },
+        ),
+      ],
     ),
   ];
 
