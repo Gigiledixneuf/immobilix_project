@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Couleurs principales
-  static const Color primaryColor = Color(0xFF0091FF); // Bleu vif pour les boutons
-  static const Color backgroundColor = Color(0xFFF2F2F7); // Gris clair pour le fond
-  static const Color textColor = Color(0xFF333333);
-  static const Color linkColor = Color(0xFF007AFF);
+  // COULEURS DOMINANTES DE VOTRE PALETTE
+  static const Color primaryBlue = Color(0xFF168BF2); // Bleu Vif Principal
+  static const Color darkPrimary = Color(0xFF0D0D0D); // Noir Profond
+
+  // Couleurs de base
+  static const Color primaryColor = primaryBlue; // Bleu vif pour les accents
+  static const Color backgroundColor = Color(0xFFF2F2F7); // Fond clair standard
+  static const Color textColor = Color(0xFF333333); // Texte sombre pour fonds clairs
+  static const Color linkColor = primaryBlue; // Liens en bleu vif
+
+  // Couleurs du tableau de bord
+  static const Color darkBackgroundColor = darkPrimary; // Utilisé pour le fond du Scaffold
+  static const Color lightTextColor = Colors.white; // Utilisé pour le texte/icônes sur fonds sombres
+  static const Color subtleTextColor = Colors.white70; // Texte subtil sur fonds sombres
+
+  // Couleurs sémantiques
+  static const Color successColor = Color(0xFF4CAF50); // Vert standard
+  static const Color warningColor = Color(0xFFFF9800); // Orange standard
+  static const Color accentOrange = Color(0xFFFFA726); // Accent orange (gardé pour les warnings/Ajouter)
+  static const Color lightOrange = Color(0xFFFFF3E0); // Fond clair pour accent orange
+
+  // Couleurs des filtres et icônes
+  static const Color chipBackgroundColor = primaryBlue; // Bleu Vif pour les chips actives
+  static const Color chipLabelColor = Colors.white; // Texte blanc sur chip bleue
+  static const Color unselectedChipColor = Color(0xFFEEEEEE); // Fond gris clair pour chips inactives
+  static const Color unselectedChipLabelColor = Colors.black; // Texte noir pour chips inactives
+  static const Color iconBackgroundColor = Color(0xFFF2F2F7); // Fond des icônes sur fonds clairs
 
   // Styles de texte
   static const TextStyle headingStyle = TextStyle(
@@ -25,31 +47,21 @@ class AppTheme {
     fontWeight: FontWeight.w600,
   );
 
-  // Style de bouton
+  // Styles de bouton
   static final ButtonStyle primaryButtonStyle = ElevatedButton.styleFrom(
     backgroundColor: primaryColor,
     foregroundColor: Colors.white,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     padding: const EdgeInsets.symmetric(vertical: 16),
-    textStyle: const TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-    ),
+    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
   );
 
   static final ButtonStyle secondaryButtonStyle = OutlinedButton.styleFrom(
     foregroundColor: primaryColor,
     side: const BorderSide(color: primaryColor, width: 2),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     padding: const EdgeInsets.symmetric(vertical: 16),
-    textStyle: const TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-    ),
+    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
   );
 
   // Décoration des champs de texte
