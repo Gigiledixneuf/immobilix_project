@@ -163,6 +163,11 @@ class PropertyCard extends StatelessWidget {
         ),
 
         onTap: () {
+          context.goNamed('property_details_page',
+          pathParameters: {
+            'id': property.id.toString(),
+            }
+          );
           // Action lors du clic (détails du logement)
           // context.push('/property/${property.id}');
         },

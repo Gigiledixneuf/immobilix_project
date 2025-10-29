@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:immobilx/pages/auth/login/login_screen.dart';
 import 'package:immobilx/pages/auth/register/register_screen.dart';
 import 'package:immobilx/pages/auth/welcom/welcom_screen.dart';
+import 'package:immobilx/pages/bailleur/property_datail.dart';
 import 'package:immobilx/pages/profile/edit/edit_profile_screen.dart';
 import 'package:immobilx/pages/profile/profile_screen.dart';
 import 'package:immobilx/pages/bailleur/property_list.dart';
@@ -52,6 +53,14 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       name: 'property_list_page',
       builder: (ctx, state) {
         return const PropertyManagementScreen();
+      },
+    ),
+    GoRoute(
+      path: '/app/properties/:id',
+      name: 'property_details_page',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return PropertyDetailsPage(propertyId: id);
       },
     ),
   ];
