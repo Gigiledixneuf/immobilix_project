@@ -11,6 +11,13 @@ class PropertyNetworkServiceImpl extends PropertyNetworkService {
   PropertyNetworkServiceImpl({required this.baseUrl, required this.httpUtils});
 
   @override
+  Future<Property> getProperty(int id) async {
+    final response = await httpUtils.getData('$baseUrl/api/properties/$id');
+    final data = jsonDecode(response);
+    return Property.fromJson(data['data']);
+  }
+
+  @override
   Future<List<Property>> getProperties() async {
     final response = await httpUtils.getData('$baseUrl/api/properties');
     final data = jsonDecode(response);

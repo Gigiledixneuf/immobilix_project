@@ -1,3 +1,5 @@
+import 'package:immobilx/business/models/user/user.dart';
+
 class Property {
   final String id;
   final String userId;
@@ -13,6 +15,7 @@ class Property {
   final String? mainPhotoUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final User? user;
 
   Property({
     required this.id,
@@ -29,6 +32,7 @@ class Property {
     this.mainPhotoUrl,
     required this.createdAt,
     required this.updatedAt,
+    this.user,
   });
 
   factory Property.fromJson(Map<String, dynamic> json) {
@@ -47,6 +51,7 @@ class Property {
       mainPhotoUrl: json['mainPhotoUrl'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      user: json['user'] != null ? User.fromJson(json['user']) : null,
     );
   }
 
@@ -66,6 +71,7 @@ class Property {
       'mainPhotoUrl': mainPhotoUrl,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'user': user?.toJson(),
     };
   }
 }
