@@ -5,6 +5,8 @@ import 'package:immobilx/pages/auth/register/register_screen.dart';
 import 'package:immobilx/pages/auth/welcom/welcom_screen.dart';
 import 'package:immobilx/pages/profile/edit/edit_profile_screen.dart';
 import 'package:immobilx/pages/profile/profile_screen.dart';
+import 'package:immobilx/pages/bailleur/property_list.dart';
+import 'package:immobilx/pages/widget/app_shell.dart';
 import 'package:immobilx/pages/widget/onboarding_page.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
@@ -18,12 +20,12 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
   /*
    routes restreintes
   */
-  final authRoutes = [
+  final shellRoutes = [
     GoRoute(
       path: "/app/home",
       name: 'home_page',
       builder: (ctx, state) {
-        return HomePage();
+        return const HomePage();
       },
     ),
     GoRoute(
@@ -41,6 +43,16 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
           },
         ),
       ],
+    ),
+  ];
+
+  final authRoutes = [
+    GoRoute(
+      path: "/app/bailleur/properties",
+      name: 'property_list_page',
+      builder: (ctx, state) {
+        return const PropertyManagementScreen();
+      },
     ),
   ];
 
@@ -116,7 +128,14 @@ CONFIGURATION  DES ROUTES
 
       return null;
     },
-    routes: [...noAuthRoutes, ...authRoutes],
+    routes: [
+      ...noAuthRoutes,
+      ...authRoutes,
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: shellRoutes,
+      ),
+    ],
     errorBuilder: (context, state) => const NotFoundPage(),
   );
 });
