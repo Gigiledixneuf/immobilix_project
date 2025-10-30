@@ -10,6 +10,8 @@ import 'MonApplication.dart';
 import 'business/services/user/userLocalService.dart';
 import 'package:immobilx/business/services/gestion/propertyNetworkService.dart';
 import 'package:immobilx/framework/gestion/propertyNetworkServiceImpl.dart';
+import 'framework/contrat/contrat_network_service_impl.dart';
+import 'package:immobilx/business/services/contrat/contrat_networt_service.dart';
 import 'business/services/user/userNetworkService.dart';
 import 'framework/gestion/gestionNetworkServiceImpl.dart';
 import 'framework/gestion/gestionLocalServiceImpl.dart';
@@ -37,6 +39,7 @@ void configureImplementations() {
   getIt.registerLazySingleton<GestionLocalService>(() => GestionLocalServiceImpl());
   getIt.registerLazySingleton<UserNetworkService>(() => UserNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils, token: ''));
   getIt.registerLazySingleton<PropertyNetworkService>(() => PropertyNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
+  getIt.registerLazySingleton<ContractNetworkService>(() => ContratNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils, token: ''));
 }
 
 void main() async {

@@ -124,4 +124,32 @@ class RemoteHttpUtils implements HttpUtils {
 
     return response.body;
   }
+
+  @override
+  Future deleteData(String url, {Map<String, String>? headers}) async {
+    // Récupération automatique du token
+    final user = await userLocalService.recupererUser();
+    final token = user?.token;
+
+    final Map<String, String> defaultHeaders = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+    final Map<String, String> finalHeaders = {...defaultHeaders, ...?headers};
+
+    final Uri uri = Uri.parse(url);
+
+    final response = await http.delete(uri, headers: finalHeaders);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw HttpRequestException(
+        response.statusCode,
+        'Request failed with status: ${response.statusCode}',
+        response.body,
+      );
+    }
+
+    return response.body;
+  }
 }
