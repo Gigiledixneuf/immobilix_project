@@ -18,5 +18,9 @@ abstract class HttpUtils {
         Map<String, dynamic>? body,
       });
 
+  Future<dynamic> deleteData(
+      String url, {
+        Map<String, String>? headers,
+      });
 
 }
