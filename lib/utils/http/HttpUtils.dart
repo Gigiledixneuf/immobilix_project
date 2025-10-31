@@ -12,6 +12,13 @@ abstract class HttpUtils {
         Map<String, dynamic>? body,
       });
 
+  Future<dynamic> postMultipart(
+      String url, {
+        Map<String, String>? headers,
+        Map<String, String>? fields,
+        Map<String, String>? files, // key: field name, value: file path
+      });
+
   Future<dynamic> putData(
       String url, {
         Map<String, String>? headers,

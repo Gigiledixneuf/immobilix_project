@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:immobilx/business/services/user/userLocalService.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../../../utils/http/HttpRequestException.dart';
 import '../../../utils/http/HttpUtils.dart';
@@ -94,6 +95,47 @@ class RemoteHttpUtils implements HttpUtils {
       );
     }
 
+    return response.body;
+  }
+
+  @override
+  Future postMultipart(String url, {Map<String, String>? headers, Map<String, String>? fields, Map<String, String>? files}) async {
+    final user = await userLocalService.recupererUser();
+    final token = user?.token;
+
+    final Uri uri = Uri.parse(url);
+    final request = http.MultipartRequest('POST', uri);
+
+    // headers
+    final Map<String, String> defaultHeaders = {
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+    request.headers.addAll({...defaultHeaders, ...?headers});
+
+    // fields
+    fields?.forEach((k, v) => request.fields[k] = v);
+
+    // files (expects file path)
+    if (files != null) {
+      for (final entry in files.entries) {
+        final file = await http.MultipartFile.fromPath(
+          entry.key,
+          entry.value,
+          contentType: MediaType('image', 'jpeg'),
+        );
+        request.files.add(file);
+      }
+    }
+
+    final streamed = await request.send();
+    final response = await http.Response.fromStream(streamed);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw HttpRequestException(
+        response.statusCode,
+        'Request failed with status: ${response.statusCode}',
+        response.body,
+      );
+    }
     return response.body;
   }
 
