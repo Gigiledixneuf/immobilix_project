@@ -1,113 +1,147 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+// Définit la licence du code (MIT est courante pour les projets open source).
+pragma solidity ^0.8.20; // Spécifie la version du compilateur Solidity.
 
-/**
- * @title RentalContractFactory
- * @notice Contrat principal pour gérer l'enregistrement et les mises à jour de tous les baux ImmobilX.
- * Utilise l'ID du contrat de la base de données (dbContractId) comme clé unique.
- */
+// ===================================================
+// 🔹 1. CONTRAT PRINCIPAL ET STRUCTURES DE DONNÉES
+// ===================================================
+
 contract RentalContractFactory {
+  // Structure (struct) pour représenter un Paiement.
+  struct Payment {
+    uint256 paymentId; // ID du paiement (souvent l'ID dans la base de données hors-chaîne).
+    uint256 amount; // Montant du paiement.
+    uint64 paymentDate; // Date et heure du paiement (timestamp Unix, 64 bits est suffisant).
+    string paymentMethod; // Méthode de paiement (ex: "Virement", "Carte").
+  }
 
-    // ----------------------------------------------------
-    // STRUCTURES DE DONNÉES
-    // ----------------------------------------------------
+  // Structure (struct) pour représenter un Contrat de Location (Bail).
+  struct RentalContract {
+    uint256 dbContractId; // ID du contrat dans la base de données hors-chaîne (clé unique).
+    uint256 landlordId; // ID du propriétaire.
+    uint256 tenantId; // ID du locataire.
+    uint256 rentAmount; // Montant du loyer mensuel.
+    string currency; // Devise utilisée (ex: "EUR", "USD").
+    uint64 endDate; // Date de fin du contrat (timestamp).
+    string currentStatus; // Statut actuel (ex: "Actif", "Résilié").
+    uint256 depositMonths; // Nombre de mois de caution.
+    uint256 depositAmount; // Montant total de la caution.
+    string depositStatus; // Statut de la caution (ex: "Payée", "Bloquée").
+    Payment[] payments; // Tableau pour stocker l'historique de tous les paiements.
+  }
 
-    // Structure pour refléter les données d'un contrat de location
-    struct RentalContract {
-        uint256 dbContractId;    // ID du contrat dans votre DB AdonisJS (clé unique)
-        uint256 landlordId;      // ID du bailleur (DB)
-        uint256 tenantId;        // ID du locataire (DB)
-        uint256 rentAmount;      // Montant du loyer (en plus petite unité)
-        uint64 endDate;          // Date de fin (Timestamp Unix en secondes)
-        string currentStatus;    // Ex: "pending", "active", "terminated"
-        string depositStatus;    // Ex: "unpaid", "paid", "returned"
-    }
+  // Mappage pour stocker tous les contrats. L'ID de la DB sert de clé unique pour retrouver le contrat.
+  mapping(uint256 => RentalContract) public contracts;
 
-    // Associe l'ID de la DB du contrat (clé) à la structure du bail (valeur)
-    mapping(uint256 => RentalContract) public contracts;
+  // Variables d'état permanentes (immutables), définies une seule fois à la création.
+  address public immutable owner; // Adresse de déploiement (propriétaire du contrat).
+  address public immutable operator; // Adresse autorisée à effectuer des transactions.
 
-    // L'administrateur du système (celui qui déploie le contrat)
-    address immutable public owner;
+  // =============================
+  // 🔹 2. ÉVÉNEMENTS (EVENTS)
+  // =============================
+  // Les événements sont stockés dans les logs de la transaction et sont plus faciles à lire hors-chaîne.
+  event LeaseCreated(uint256 dbContractId, address indexed creator);
+  event StatusUpdated(uint256 dbContractId, string newStatus);
+  event EndDateUpdated(uint256 dbContractId, uint64 newEndDate);
+  event PaymentMade(uint256 dbContractId, uint256 paymentId, uint256 amount);
 
-    // ----------------------------------------------------
-    // ÉVÉNEMENTS
-    // ----------------------------------------------------
+  // =============================
+  // 🔹 3. CONSTRUCTEUR ET MODIFIERS
+  // =============================
 
-    event LeaseCreated(uint256 dbContractId, address indexed creator);
-    event StatusUpdated(uint256 dbContractId, string newStatus);
-    event EndDateUpdated(uint256 dbContractId, uint64 newEndDate);
+  // Fonction appelée uniquement lors du déploiement du contrat.
+  constructor() {
+    owner = msg.sender; // Définit le déployeur comme propriétaire.
+    operator = msg.sender; // Définit le déployeur comme opérateur par défaut.
+  }
 
-    // ----------------------------------------------------
-    // CONSTRUCTEUR
-    // ----------------------------------------------------
+  // Modificateur pour restreindre l'accès aux fonctions.
+  modifier onlyAuthorized() {
+    // Exige que l'appelant (msg.sender) soit l'owner OU l'operator.
+    require(
+      msg.sender == owner || msg.sender == operator,
+      "Unauthorized caller"
+    );
+    _; // Exécute le reste de la fonction.
+  }
 
-    constructor() {
-        owner = msg.sender;
-    }
+  // =============================
+  // 🔹 4. FONCTIONS DE GESTION
+  // =============================
 
-    // ----------------------------------------------------
-    // FONCTIONS D'ÉCRITURE (Master Contract est le seul à appeler)
-    // ----------------------------------------------------
+  // Fonction pour créer un nouveau contrat de location (bail) sur la chaîne.
+  function createNewLease(
+    uint256 _dbContractId,
+    uint256 _landlordId,
+    uint256 _tenantId,
+    uint64 _endDate,
+    uint256 _rentAmount,
+    string memory _currency,
+    string memory _status,
+    uint256 _depositMonths,
+    uint256 _depositAmount,
+    string memory _depositStatus
+  ) public onlyAuthorized { // Seul l'opérateur ou le propriétaire peut appeler cette fonction.
+    // Vérifie qu'aucun contrat avec cet ID n'existe déjà.
+    require(contracts[_dbContractId].dbContractId == 0, "Lease already exists");
 
-    /**
-     * @notice Enregistre un nouveau contrat de location.
-     * @dev Seul le compte opérateur (owner) devrait appeler cette fonction.
-     */
-    function createNewLease(
-        uint256 _dbContractId,
-        uint256 _landlordId,
-        uint256 _tenantId,
-        uint256 _rentAmount,
-        uint64 _endDate,
-        string memory _status,
-        string memory _depositStatus
-    ) public {
-        // Optionnel: Vérifier si l'appel vient bien de l'opérateur de l'API
-        require(msg.sender == owner, "Seul le proprietaire du contrat peut creer"); 
-        
-        // Vérifie si l'ID n'est pas déjà utilisé
-        require(contracts[_dbContractId].dbContractId == 0, "Contrat deja existant");
+    // Crée une référence de stockage pour le nouveau contrat dans le mapping.
+    RentalContract storage newContract = contracts[_dbContractId];
 
-        contracts[_dbContractId] = RentalContract({
-            dbContractId: _dbContractId,
-            landlordId: _landlordId,
-            tenantId: _tenantId,
-            rentAmount: _rentAmount,
-            endDate: _endDate,
-            currentStatus: _status,
-            depositStatus: _depositStatus
-        });
+    // Initialise les champs du nouveau contrat.
+    newContract.dbContractId = _dbContractId;
+    newContract.landlordId = _landlordId;
+    newContract.tenantId = _tenantId;
+    newContract.endDate = _endDate;
+    newContract.rentAmount = _rentAmount;
+    newContract.currency = _currency;
+    newContract.currentStatus = _status;
+    newContract.depositMonths = _depositMonths;
+    newContract.depositAmount = _depositAmount;
+    newContract.depositStatus = _depositStatus;
 
-        emit LeaseCreated(_dbContractId, msg.sender);
-    }
+    // Émet un événement pour signaler la création.
+    emit LeaseCreated(_dbContractId, msg.sender);
+  }
 
-    /**
-     * @notice Met à jour la date de fin d'un bail existant.
-     */
-    function updateEndDate(uint256 _dbContractId, uint64 _newEndDate) public {
-        require(msg.sender == owner, "Seul le proprietaire du contrat peut modifier");
-        require(contracts[_dbContractId].dbContractId != 0, "Contrat introuvable");
+  // Fonction pour enregistrer un paiement.
+  function makePayment(
+    uint256 _dbContractId,
+    uint256 _paymentId,
+    uint256 _amount,
+    string memory _paymentMethod
+  ) public onlyAuthorized {
+    // Vérifie que le contrat existe.
+    require(contracts[_dbContractId].dbContractId != 0, "Lease not found");
 
-        contracts[_dbContractId].endDate = _newEndDate;
-        emit EndDateUpdated(_dbContractId, _newEndDate);
-    }
+    // Ajoute un nouveau paiement au tableau des paiements du contrat.
+    contracts[_dbContractId].payments.push(
+      Payment({
+        paymentId: _paymentId,
+        amount: _amount,
+        paymentDate: uint64(block.timestamp), // Utilise le timestamp actuel de la blockchain.
+        paymentMethod: _paymentMethod
+      })
+    );
 
-    /**
-     * @notice Met à jour le statut du bail (e.g., de 'pending' à 'active').
-     */
-    function updateStatus(uint256 _dbContractId, string memory _newStatus) public {
-        require(msg.sender == owner, "Seul le proprietaire du contrat peut modifier");
-        require(contracts[_dbContractId].dbContractId != 0, "Contrat introuvable");
+    // Émet un événement pour signaler le paiement.
+    emit PaymentMade(_dbContractId, _paymentId, _amount);
+  }
 
-        contracts[_dbContractId].currentStatus = _newStatus;
-        emit StatusUpdated(_dbContractId, _newStatus);
-    }
+  // Fonction pour modifier la date de fin du contrat (ex: renouvellement).
+  function updateEndDate(uint256 _dbContractId, uint64 _newEndDate) public onlyAuthorized {
+    require(contracts[_dbContractId].dbContractId != 0, "Lease not found");
 
-    // ----------------------------------------------------
-    // FONCTIONS DE LECTURE (Optionnelles, utiles pour les tests)
-    // ----------------------------------------------------
+    contracts[_dbContractId].endDate = _newEndDate;
+    emit EndDateUpdated(_dbContractId, _newEndDate);
+  }
 
-    function getContractStatus(uint256 _dbContractId) public view returns (string memory) {
-        return contracts[_dbContractId].currentStatus;
-    }
+  // Fonction pour modifier le statut du contrat (ex: de "Actif" à "Résilié").
+  function updateStatus(uint256 _dbContractId, string memory _newStatus) public onlyAuthorized {
+    require(contracts[_dbContractId].dbContractId != 0, "Lease not found");
+
+    contracts[_dbContractId].currentStatus = _newStatus;
+    emit StatusUpdated(_dbContractId, _newStatus);
+  }
 }

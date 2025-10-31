@@ -39,7 +39,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @manyToMany(() => Role, {
     pivotTable: 'user_roles',
   })
-  public roles: ManyToMany<typeof Role> | undefined
+  declare roles: ManyToMany<typeof Role>
 
   @hasMany(() => Property)
   declare Property: HasMany<typeof Property>
