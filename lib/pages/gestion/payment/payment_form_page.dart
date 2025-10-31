@@ -164,11 +164,29 @@ class _PaymentFormPageState extends ConsumerState<PaymentFormPage> {
       };
 
       try {
-        // Appel du service pour effectuer le paiement
-        await getIt<ContractNetworkService>().makePayment(data);
-
-        // Retour à la page précédente après succès
-        context.pop();
+        if (_paymentMethod == PaymentMethods.MOBILE_MONEY) {
+          final res = await getIt<ContractNetworkService>().payDeposit(
+            contractId: int.parse(widget.contract.id as String),
+            amount: double.parse(_amountController.text),
+            paymentMethod: 'MOBILE_MONEY',
+          );
+          final checkoutUrl = res['data']?['checkoutUrl'] ?? res['checkoutUrl'];
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(checkoutUrl != null ? 'Redirection paiement initialisée' : 'Intention de paiement créée')),
+            );
+          }
+        } else {
+          // Paiement on-chain immédiat
+          await getIt<ContractNetworkService>().makePayment(data);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Paiement confirmé')),
+            );
+          }
+        }
+        // Retour après succès
+        if (mounted) context.pop();
       } catch (e) {
         // Affiche un message d’erreur si l’appel échoue
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
