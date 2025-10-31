@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:immobilx/pages/home/tenants_controller.dart';
 import 'package:immobilx/utils/theme/app_theme.dart';
 
-class TenantsSection extends StatelessWidget {
+class TenantsSection extends ConsumerWidget {
   const TenantsSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tenantsState = ref.watch(tenantsControllerProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -25,15 +29,22 @@ class TenantsSection extends StatelessWidget {
         const SizedBox(height: 16),
         SizedBox(
           height: 100,
-          child: ListView(
+          child: tenantsState.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : tenantsState.errorMessage != null
+              ? Center(child: Text(tenantsState.errorMessage!))
+              : ListView.builder(
             scrollDirection: Axis.horizontal,
-            children: [
-              _buildTenantAvatar('Mark R.', 'https://randomuser.me/api/portraits/men/32.jpg'),
-              _buildTenantAvatar('Kris', 'https://randomuser.me/api/portraits/men/33.jpg'),
-              _buildTenantAvatar('Helen T.', 'https://randomuser.me/api/portraits/women/32.jpg'),
-              _buildTenantAvatar('Tony Gym', 'https://randomuser.me/api/portraits/men/34.jpg'),
-              _buildAddButton(),
-            ],
+            itemCount: tenantsState.tenants.length + 1, // +1 pour le bouton ajouter
+            itemBuilder: (context, index) {
+              if (index == tenantsState.tenants.length) {
+                return _buildAddButton();
+              }
+              final tenant = tenantsState.tenants[index];
+              // L'image de l'utilisateur ou une image par défaut
+              final imageUrl = tenant.mainPhotoUrl ?? 'https://www.gravatar.com/avatar/?d=mp';
+              return _buildTenantAvatar(tenant.fullName ?? 'N/A', imageUrl);
+            },
           ),
         ),
       ],
