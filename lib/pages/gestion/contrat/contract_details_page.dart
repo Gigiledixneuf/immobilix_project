@@ -50,6 +50,10 @@ class ContractDetailsPage extends ConsumerWidget {
         title: const Text('Détails du Contrat', style: TextStyle(color: AppTheme.lightTextColor)),
         backgroundColor: AppTheme.darkBackgroundColor,
         iconTheme: const IconThemeData(color: AppTheme.lightTextColor),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.lightTextColor),
+          onPressed: () => context.goNamed('contracts_list_page'),
+        ),
       ),
 
       // =============================

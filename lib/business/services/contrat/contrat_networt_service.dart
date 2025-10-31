@@ -51,4 +51,10 @@ abstract class ContractNetworkService {
   // =============================
   // Récupère la liste des paiements associés à un contrat donné
   Future<List<Payment>> getContractPayments(int contractId);
+
+  // =============================
+  // 🔹 9. PAYER LA CAUTION (DÉPÔT)
+  // =============================
+  // Lance l’initiation de paiement de dépôt et retourne la réponse brute (peut contenir checkoutUrl)
+  Future<Map<String, dynamic>> payDeposit({required int contractId, required double amount, required String paymentMethod});
 }
