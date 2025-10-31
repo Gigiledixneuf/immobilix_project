@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:immobilx/pages/home/transactions_controller.dart';
 import 'package:immobilx/utils/theme/app_theme.dart';
+import 'package:intl/intl.dart';
 
-class TransactionsList extends StatelessWidget {
+class TransactionsList extends ConsumerWidget {
   const TransactionsList({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final transactionsState = ref.watch(transactionsControllerProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -13,49 +18,39 @@ class TransactionsList extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Transactions',
+              'Mes Transactions',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            TextButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.filter_list),
-              label: const Text('Filtrer'),
+            TextButton(
+              onPressed: () {}, // Laisser pour plus tard
+              child: const Text('Voir tout'),
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        // Onglets de filtre
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildFilterChip('Tout', isSelected: true),
-            _buildFilterChip('Paiements Reçus'),
-            _buildFilterChip('Retraits'),
           ],
         ),
         const SizedBox(height: 20),
         // Liste des transactions
-        _buildTransactionItem(
-          icon: Icons.arrow_downward,
-          color: AppTheme.successColor, // Utilisation du thème
-          title: 'Loyer - Helen T.',
-          subtitle: 'Aujourd\'hui, 08:09',
-          amount: '+ \$500.00',
-        ),
-        _buildTransactionItem(
-          icon: Icons.arrow_upward,
-          color: AppTheme.warningColor, // Utilisation du thème
-          title: 'Retrait Mobile Money',
-          subtitle: 'Hier, 14:21',
-          amount: '- \$1250.00',
-        ),
-        _buildTransactionItem(
-          icon: Icons.arrow_downward,
-          color: AppTheme.successColor, // Utilisation du thème
-          title: 'Loyer - Mark R.',
-          subtitle: '18 Oct, 11:30',
-          amount: '+ \$720.00',
-        ),
+        if (transactionsState.isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (transactionsState.errorMessage != null)
+          Center(child: Text(transactionsState.errorMessage!))
+        else if (transactionsState.payments.isEmpty)
+            const Center(child: Text("Aucune transaction pour le moment."))
+          else
+            ListView.builder(
+              shrinkWrap: true, // Important dans un Column
+              physics: const NeverScrollableScrollPhysics(), // Pas de scroll interne
+              itemCount: transactionsState.payments.length,
+              itemBuilder: (context, index) {
+                final payment = transactionsState.payments[index];
+                return _buildTransactionItem(
+                  icon: Icons.arrow_downward, // Tous les paiements sont entrants pour le locataire
+                  color: AppTheme.successColor,
+                  title: 'Paiement du loyer',
+                  subtitle: DateFormat('d MMM y, HH:mm').format(payment.createdAt),
+                  amount: '+ ${payment.amount.toStringAsFixed(2)} \$',
+                );
+              },
+            ),
       ],
     );
   }

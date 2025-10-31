@@ -94,4 +94,17 @@ class ContratNetworkServiceImpl implements ContractNetworkService{
     final List<dynamic> paymentsJson = data['data']['data'];
     return paymentsJson.map((json) => Payment.fromJson(json)).toList();
   }
+
+  @override
+  Future<Map<String, dynamic>> payDeposit({required int contractId, required double amount, required String paymentMethod}) async {
+    final response = await httpUtils.postData(
+      '$baseUrl/api/contracts/$contractId/pay-deposit',
+      body: {
+        'amount': amount,
+        'paymentMethod': paymentMethod,
+      },
+    );
+    final data = jsonDecode(response);
+    return data; // peut contenir { message, data: { payment... }, checkoutUrl }
+  }
 }

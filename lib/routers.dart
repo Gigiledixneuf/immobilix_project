@@ -7,11 +7,15 @@ import 'package:immobilx/pages/bailleur/property_datail.dart';
 import 'package:immobilx/pages/gestion/contrat/contract_details_page.dart';
 import 'package:immobilx/pages/gestion/contrat/contract_form_page.dart';
 import 'package:immobilx/pages/gestion/contrat/contract_list_page.dart';
+import 'package:immobilx/pages/gestion/property/property_list_page.dart';
+import 'package:immobilx/pages/gestion/property/public_property_list_page.dart';
+import 'package:immobilx/pages/gestion/property/property_applications_page.dart';
 import 'package:immobilx/pages/profile/edit/edit_profile_screen.dart';
 import 'package:immobilx/pages/profile/profile_screen.dart';
-import 'package:immobilx/pages/bailleur/property_list.dart';
+import 'package:immobilx/pages/bailleur/add_property_page.dart';
 import 'package:immobilx/pages/widget/app_shell.dart';
 import 'package:immobilx/pages/widget/onboarding_page.dart';
+import 'package:immobilx/pages/gestion/payment/payments_hub_page.dart';
 import 'business/models/contrat/contrat.dart';
 import 'pages/gestion/payment/payment_form_page.dart';
 import 'pages/404/not_found_page.dart';
@@ -35,10 +39,17 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       },
     ),
     GoRoute(
-      path: '/app/contracts',
-      name: 'contract_list_page',
+      path: '/app/payments',
+      name: 'payments_hub_page',
       builder: (ctx, state) {
-        return const ContractListPage();
+        return const PaymentsHubPage();
+      },
+    ),
+    GoRoute(
+      path: '/app/properties',
+      name: 'property_list_page',
+      builder: (ctx, state) {
+        return const PropertyListPage();
       },
     ),
     GoRoute(
@@ -57,14 +68,21 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
         ),
       ],
     ),
+    GoRoute(
+      path: '/app/contracts',
+      name: 'contracts_list_page',
+      builder: (ctx, state) {
+        return const ContractListPage();
+      },
+    ),
   ];
 
   final authRoutes = [
     GoRoute(
-      path: "/app/bailleur/properties",
-      name: 'property_list_page',
+      path: "/app/bailleur/properties/new",
+      name: 'add_property_page',
       builder: (ctx, state) {
-        return const PropertyManagementScreen();
+        return AddPropertyPage();
       },
     ),
     GoRoute(
@@ -73,6 +91,14 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       builder: (context, state) {
         final id = int.parse(state.pathParameters['id']!);
         return PropertyDetailsPage(propertyId: id);
+      },
+    ),
+    GoRoute(
+      path: '/app/properties/:id/applications',
+      name: 'property_applications_page',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return PropertyApplicationsPage(propertyId: id);
       },
     ),
 
@@ -146,6 +172,13 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       name: 'register_page',
       builder: (ctx, state) {
         return RegisterPage();
+      },
+    ),
+    GoRoute(
+      path: "/public/properties",
+      name: 'public_property_list_page',
+      builder: (ctx, state) {
+        return const PublicPropertyListPage();
       },
     ),
   ];

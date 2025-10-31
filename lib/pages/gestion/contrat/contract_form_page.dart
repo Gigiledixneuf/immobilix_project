@@ -116,6 +116,10 @@ class _ContractFormPageState extends ConsumerState<ContractFormPage> {
         ),
         backgroundColor: AppTheme.darkBackgroundColor,
         iconTheme: const IconThemeData(color: AppTheme.lightTextColor),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.lightTextColor),
+          onPressed: () => context.goNamed('contracts_list_page'),
+        ),
       ),
 
       // Affiche un loader si les données ne sont pas encore prêtes
