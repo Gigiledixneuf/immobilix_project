@@ -7,9 +7,10 @@ import 'package:immobilx/utils/theme/app_theme.dart';
 // ✅ Liste des routes principales de l’application accessibles via la barre de navigation
 const List<String> navRoutes = [
   '/app/home',
-  '/app/contracts',
-  '/app/transactions',
-  '/app/stats',
+  '/app/payments',
+  '/app/properties',
+  // '/app/transactions',
+  // '/app/stats',
   '/app/profile',
 ];
 
@@ -93,27 +94,33 @@ class CustomBottomNavBar extends StatelessWidget {
                   onTap: onTapped,
                 ),
                 _NavItem(
-                  icon: Icons.article_outlined,
+                  icon: Icons.payments_outlined,
                   index: 1,
                   isActive: selectedIndex == 1,
                   onTap: onTapped,
                 ),
                 _NavItem(
-                  icon: Icons.remove_red_eye_outlined,
+                  icon: Icons.home_work_outlined,
                   index: 2,
                   isActive: selectedIndex == 2,
                   onTap: onTapped,
                 ),
-                _NavItem(
-                  icon: Icons.bar_chart_sharp,
-                  index: 3,
-                  isActive: selectedIndex == 3,
-                  onTap: onTapped,
-                ),
+                // _NavItem(
+                //   icon: Icons.remove_red_eye_outlined,
+                //   index: 3,
+                //   isActive: selectedIndex == 3,
+                //   onTap: onTapped,
+                // ),
+                // _NavItem(
+                //   icon: Icons.bar_chart_sharp,
+                //   index: 4,
+                //   isActive: selectedIndex == 4,
+                //   onTap: onTapped,
+                // ),
                 _NavItem(
                   icon: Icons.person_outline,
-                  index: 4,
-                  isActive: selectedIndex == 4,
+                  index: 3,
+                  isActive: selectedIndex == 3,
                   onTap: onTapped,
                 ),
               ],
