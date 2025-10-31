@@ -6,6 +6,9 @@ import User from '#models/user'
 import { StoreContractValidator, UpdateContractValidator } from '#validators/contract'
 import { DateTime } from 'luxon'
 import HederaService, { HederaContractData } from '#services/hedera_service'
+import Payment from '#models/payment'
+import { PaymentMethods, PaymentStatus } from '#models/payment'
+import { PayDepositValidator } from '#validators/payment'
 
 @inject()
 export default class ContractsController {
@@ -249,6 +252,59 @@ export default class ContractsController {
       message: 'Détails du contrat',
       data: contract,
     })
+  }
+
+  /**
+   * 💰 Payer la caution/dépôt d’un contrat (intention de paiement)
+   * POST /api/contracts/:id/pay-deposit
+   */
+  async payDeposit({ params, request, auth, response }: HttpContext) {
+    const user = auth.user
+    if (!user) return response.unauthorized({ message: 'Non authentifié' })
+
+    const contract = await Contract.find(params.id)
+    if (!contract) return response.notFound({ message: 'Contrat introuvable' })
+
+    // Autoriser le locataire lié au contrat à initier le paiement du dépôt
+    if (contract.tenantId !== user.id) {
+      return response.forbidden({ message: "Vous n'êtes pas le locataire de ce contrat" })
+    }
+
+    const payload = await request.validateUsing(PayDepositValidator)
+    const amount = payload.amount ?? contract.depositAmount ?? 0
+    if (!amount || amount <= 0) {
+      return response.badRequest({ message: 'Montant de dépôt invalide' })
+    }
+
+    const payment = await Payment.create({
+      contractId: contract.id,
+      amount,
+      currency: contract.currency,
+      paymentMethod: payload.paymentMethod as PaymentMethods,
+      status: PaymentStatus.PENDING,
+    })
+
+    // Si crypto, tenter un paiement on-chain synchronement (HBAR/USDC)
+    if (payload.paymentMethod === PaymentMethods.HBAR || payload.paymentMethod === PaymentMethods.USDC) {
+      try {
+        const txId = await this.hederaService.makePaymentOnChain({
+          dbContractId: contract.id,
+          paymentId: payment.id,
+          amount: payment.amount,
+          paymentMethod: payload.paymentMethod,
+        })
+        payment.transactionId = txId
+        payment.status = PaymentStatus.PAID
+        await payment.save()
+      } catch (e) {
+        payment.status = PaymentStatus.FAILED
+        await payment.save()
+        return response.internalServerError({ message: 'Erreur paiement Hedera', error: String(e) })
+      }
+    }
+
+    // Pour Mobile Money, le paiement sera confirmé via webhook + queue
+    return response.created({ message: 'Intention de paiement créée', data: payment })
   }
 
   /**
