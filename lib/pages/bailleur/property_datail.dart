@@ -137,7 +137,7 @@ class PropertyDetailsPage extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: AppTheme.lightTextColor),
-          onPressed: () => context.goNamed('home_page'),
+          onPressed: () => context.goNamed('property_list_page'),
         ),
         title: Text(
           'Détails du logement',
