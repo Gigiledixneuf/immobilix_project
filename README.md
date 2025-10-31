@@ -89,6 +89,13 @@ ImmobiliX tire parti des services Hedera pour :
 - Facilite accès à micro-crédits, épargne, historique de solvabilité pour utilisateurs
 
 ---
+## 🔗 Liens  
+
+- Répo GitHub : https://github.com/Gigiledixneuf/immobilix_project
+- Vidéo démonstration : [YouTube demo link]  
+- Pitch Deck : https://www.canva.com/design/DAG3Q7tIeBo/qB2gtNLn52o5Lc_kHPCgZg/edit?utm_content=DAG3Q7tIeBo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+- Certificat Hedera : https://drive.google.com/file/d/10WVeR2wkiRviAPkejYmYF3BS8E5lbXft/view?usp=sharing
+---
 
 ## 📜 Licence
 
